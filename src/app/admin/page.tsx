@@ -26,7 +26,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [workUrl, setWorkUrl] = useState("")
   const [workNote, setWorkNote] = useState("")
-  const [workPreview, setWorkPreview] = useState<Record<string, unknown> | null>(null)
+  const [workPreview, setWorkPreview] = useState<Record<string, unknown> | undefined>(undefined)
   const [workSaving, setWorkSaving] = useState(false)
   const [works, setWorks] = useState<YouTubeWork[] | null>(null)
   const [refreshingId, setRefreshingId] = useState<number | null>(null)
@@ -371,7 +371,7 @@ export default function AdminPage() {
                       toast.success("Saved")
                       setWorkUrl("")
                       setWorkNote("")
-                      setWorkPreview(null)
+                      setWorkPreview(undefined)
                       const list = await listYouTubeWorks()
                       setWorks(list)
                     } catch (e: unknown) {
