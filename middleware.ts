@@ -12,6 +12,7 @@ export const config = {
     // - _next/image (image optimization files)
     // - _next/internal (Next.js internal helpers)
     // - favicon and common image assets
-    '/((?!_next/static|_next/image|_next/internal|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // - auth/callback (OAuth code exchange)
+    '/((?!_next/static|_next/image|_next/internal|favicon.ico|auth/callback|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

@@ -16,7 +16,8 @@ import { Spinner } from "@/components/ui/spinner"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import Image from "next/image"
-import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork } from "@/lib/api"
+import CountUp from "@/components/CountUp"
+import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, listYouTubeViewLogs, type YouTubeViewLog, getTotalYouTubeViews } from "@/lib/api"
 
 export default function AdminPage() {
   const [form, setForm] = useState<SubmitPayload>({ youtubeHandle: "", stars: 5, comment: "" })
@@ -29,6 +30,13 @@ export default function AdminPage() {
   const [workSaving, setWorkSaving] = useState(false)
   const [works, setWorks] = useState<YouTubeWork[] | null>(null)
   const [refreshingId, setRefreshingId] = useState<number | null>(null)
+  const [viewWorkId, setViewWorkId] = useState<number | "">("")
+  const [viewUrl, setViewUrl] = useState("")
+  const [viewLogs, setViewLogs] = useState<YouTubeViewLog[] | null>(null)
+  const [logging, setLogging] = useState(false)
+  const [logsLoading, setLogsLoading] = useState(false)
+  const [totalViews, setTotalViews] = useState<number | null>(null)
+  const [totalLoading, setTotalLoading] = useState(false)
 
   const sortedRows = useMemo(() => {
     return (rows ?? []).slice().sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
@@ -50,6 +58,41 @@ export default function AdminPage() {
   useEffect(() => {
     refresh()
     listYouTubeWorks().then(setWorks).catch(() => setWorks([]))
+  }, [])
+
+  useEffect(() => {
+    async function load() {
+      if (!viewWorkId || !works) {
+        setViewLogs(null)
+        return
+      }
+      setLogsLoading(true)
+      try {
+        const logs = await listYouTubeViewLogs({ work_id: Number(viewWorkId), limit: 50 })
+        setViewLogs(logs)
+      } catch {
+        setViewLogs([])
+      } finally {
+        setLogsLoading(false)
+      }
+    }
+    load()
+  }, [viewWorkId, works])
+
+  async function loadTotalViews() {
+    setTotalLoading(true)
+    try {
+      const tv = await getTotalYouTubeViews()
+      setTotalViews(tv)
+    } catch {
+      setTotalViews(0)
+    } finally {
+      setTotalLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadTotalViews()
   }, [])
 
   async function onSubmit(e: React.FormEvent) {
@@ -108,6 +151,7 @@ export default function AdminPage() {
         <TabsList>
           <TabsTrigger value="ratings">Ratings</TabsTrigger>
           <TabsTrigger value="works">My Works</TabsTrigger>
+          <TabsTrigger value="views">Views</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ratings" className="space-y-8">
@@ -222,6 +266,84 @@ export default function AdminPage() {
                   </Table>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="views" className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Log current views</CardTitle>
+              <CardDescription>Fetch current view count via YouTube API and store a snapshot</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="workSelect">Select a saved work (optional)</Label>
+                <select
+                  id="workSelect"
+                  className="h-10 rounded-md border bg-background px-3 text-sm"
+                  value={viewWorkId}
+                  onChange={(e) => setViewWorkId(e.target.value ? Number(e.target.value) : "")}
+                >
+                  <option value="">— None —</option>
+                  {(works ?? []).map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.video_title || "Untitled"} {w.channel_title ? `— ${w.channel_title}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="viewUrl">Or paste YouTube URL</Label>
+                <Input id="viewUrl" placeholder="https://www.youtube.com/watch?v=..." value={viewUrl} onChange={(e) => setViewUrl(e.target.value)} />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  disabled={logging || (!viewWorkId && !viewUrl.trim())}
+                  onClick={async () => {
+                    setLogging(true)
+                    try {
+                      if (viewWorkId) {
+                        await logYouTubeViews({ work_id: Number(viewWorkId) })
+                        const logs = await listYouTubeViewLogs({ work_id: Number(viewWorkId), limit: 50 })
+                        setViewLogs(logs)
+                      } else if (viewUrl.trim()) {
+                        await logYouTubeViews({ youtube_url: viewUrl.trim() })
+                        toast.success("Logged views")
+                      }
+                      await loadTotalViews()
+                      toast.success("Logged views")
+                    } catch (e: any) {
+                      toast.error(e?.message || "Failed to log views")
+                    } finally {
+                      setLogging(false)
+                    }
+                  }}
+                >
+                  {logging ? "Logging..." : "Log Now"}
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">Total views stored in logs (global)</div>
+                {totalLoading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground"><Spinner /> Loading...</div>
+                ) : (
+                  <div className="rounded-md border p-6 flex items-center justify-between">
+                    <div className="text-lg font-medium">Total views</div>
+                    <div className="group inline-block">
+                      <CountUp
+                        to={totalViews ?? 0}
+                        separator="," 
+                        className="text-3xl font-bold transition-all duration-300 will-change-transform will-change-auto group-hover:tracking-wide group-hover:scale-105 group-hover:text-primary"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -116,3 +116,42 @@ export async function refreshYouTubeWork(id: number) {
   if (!res.ok) throw new Error(data?.error || 'Failed to refresh');
   return data.data as YouTubeWork;
 }
+
+export type YouTubeViewLog = {
+  id: number
+  work_id: number | null
+  video_id: string
+  youtube_url: string | null
+  view_count: number
+  fetched_at: string
+}
+
+export async function logYouTubeViews(args: { work_id?: number; video_id?: string; youtube_url?: string }) {
+  const res = await fetch(`/api/youtube/views/log`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+    cache: 'no-store',
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to log views');
+  return data.data as YouTubeViewLog;
+}
+
+export async function listYouTubeViewLogs(args: { work_id?: number; video_id?: string; limit?: number }) {
+  const params = new URLSearchParams();
+  if (args.work_id) params.set('work_id', String(args.work_id));
+  if (args.video_id) params.set('video_id', args.video_id);
+  if (args.limit) params.set('limit', String(args.limit));
+  const res = await fetch(`/api/youtube/views/list?${params.toString()}`, { cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to load view logs');
+  return data.data as YouTubeViewLog[];
+}
+
+export async function getTotalYouTubeViews() {
+  const res = await fetch(`/api/youtube/views/total`, { cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to load total views');
+  return data.data as number;
+}
