@@ -93,7 +93,7 @@ export async function listYouTubeWorks() {
   return data.data as YouTubeWork[];
 }
 
-export async function upsertYouTubeWork(args: { youtube_url: string; note?: string; preview?: any }) {
+export async function upsertYouTubeWork(args: { youtube_url: string; note?: string; preview?: Record<string, unknown> }) {
   const res = await fetch(`/api/youtube/works`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

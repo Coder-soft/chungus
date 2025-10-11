@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   async function signInWithDiscord() {
     const supabase = createClient()

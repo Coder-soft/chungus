@@ -168,7 +168,7 @@ export default function Home() {
     v.addEventListener("ended", onEnded);
     v.addEventListener("timeupdate", onTimeUpdate);
     return () => {
-      v.removeEventListener("loadedmetadata", onLoaded as any);
+      v.removeEventListener("loadedmetadata", onLoaded);
       v.removeEventListener("canplay", onCanPlay);
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("timeupdate", onTimeUpdate);

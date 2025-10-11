@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import Image from "next/image"
 import CountUp from "@/components/CountUp"
-import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, listYouTubeViewLogs, type YouTubeViewLog, getTotalYouTubeViews } from "@/lib/api"
+import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, getTotalYouTubeViews } from "@/lib/api"
 
 export default function AdminPage() {
   const [form, setForm] = useState<SubmitPayload>({ youtubeHandle: "", stars: 5, comment: "" })
@@ -26,15 +26,13 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [workUrl, setWorkUrl] = useState("")
   const [workNote, setWorkNote] = useState("")
-  const [workPreview, setWorkPreview] = useState<any | null>(null)
+  const [workPreview, setWorkPreview] = useState<Record<string, unknown> | null>(null)
   const [workSaving, setWorkSaving] = useState(false)
   const [works, setWorks] = useState<YouTubeWork[] | null>(null)
   const [refreshingId, setRefreshingId] = useState<number | null>(null)
   const [viewWorkId, setViewWorkId] = useState<number | "">("")
   const [viewUrl, setViewUrl] = useState("")
-  const [viewLogs, setViewLogs] = useState<YouTubeViewLog[] | null>(null)
   const [logging, setLogging] = useState(false)
-  const [logsLoading, setLogsLoading] = useState(false)
   const [totalViews, setTotalViews] = useState<number | null>(null)
   const [totalLoading, setTotalLoading] = useState(false)
 
@@ -61,22 +59,7 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    async function load() {
-      if (!viewWorkId || !works) {
-        setViewLogs(null)
-        return
-      }
-      setLogsLoading(true)
-      try {
-        const logs = await listYouTubeViewLogs({ work_id: Number(viewWorkId), limit: 50 })
-        setViewLogs(logs)
-      } catch {
-        setViewLogs([])
-      } finally {
-        setLogsLoading(false)
-      }
-    }
-    load()
+    // View logs functionality removed - keeping effect for future use
   }, [viewWorkId, works])
 
   async function loadTotalViews() {
@@ -306,16 +289,14 @@ export default function AdminPage() {
                     try {
                       if (viewWorkId) {
                         await logYouTubeViews({ work_id: Number(viewWorkId) })
-                        const logs = await listYouTubeViewLogs({ work_id: Number(viewWorkId), limit: 50 })
-                        setViewLogs(logs)
                       } else if (viewUrl.trim()) {
                         await logYouTubeViews({ youtube_url: viewUrl.trim() })
-                        toast.success("Logged views")
                       }
                       await loadTotalViews()
                       toast.success("Logged views")
-                    } catch (e: any) {
-                      toast.error(e?.message || "Failed to log views")
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to log views"
+                      toast.error(msg)
                     } finally {
                       setLogging(false)
                     }
@@ -372,8 +353,9 @@ export default function AdminPage() {
                       const p = await previewYouTube(workUrl)
                       setWorkPreview(p)
                       toast.success("Preview loaded")
-                    } catch (e: any) {
-                      toast.error(e?.message || "Failed to preview")
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to preview"
+                      toast.error(msg)
                     }
                   }}
                 >
@@ -385,15 +367,16 @@ export default function AdminPage() {
                   onClick={async () => {
                     setWorkSaving(true)
                     try {
-                      const saved = await upsertYouTubeWork({ youtube_url: workUrl, note: workNote, preview: workPreview })
+                      await upsertYouTubeWork({ youtube_url: workUrl, note: workNote, preview: workPreview })
                       toast.success("Saved")
                       setWorkUrl("")
                       setWorkNote("")
                       setWorkPreview(null)
                       const list = await listYouTubeWorks()
                       setWorks(list)
-                    } catch (e: any) {
-                      toast.error(e?.message || "Failed to save")
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to save"
+                      toast.error(msg)
                     } finally {
                       setWorkSaving(false)
                     }
@@ -440,15 +423,16 @@ export default function AdminPage() {
                         setRefreshingId(w.id)
                         try {
                           await refreshYouTubeWork(w.id)
-                        } catch (e) {
+                        } catch {
                           // continue on error, individual toasts below
                         }
                       }
                       const list = await listYouTubeWorks()
                       setWorks(list)
                       toast.success("All works refreshed")
-                    } catch (e: any) {
-                      toast.error(e?.message || "Failed to refresh all")
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to refresh all"
+                      toast.error(msg)
                     } finally {
                       setRefreshingId(null)
                     }
@@ -487,8 +471,9 @@ export default function AdminPage() {
                                 const list = await listYouTubeWorks()
                                 setWorks(list)
                                 toast.success("Updated")
-                              } catch (e: any) {
-                                toast.error(e?.message || "Failed to update")
+                              } catch (e: unknown) {
+                                const msg = e instanceof Error ? e.message : "Failed to update"
+                                toast.error(msg)
                               } finally {
                                 setRefreshingId(null)
                               }
