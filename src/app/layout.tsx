@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: "Professional video editor crafting high-impact edits and viral content.",
     images: [
       {
-        url: "/imagecopy.png",
+        url: "/hyperlink.png",
         width: 1200,
         height: 630,
         alt: "ChungusFX Cover",
