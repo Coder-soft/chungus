@@ -52,48 +52,22 @@ export default function Home() {
 
 
   const clientCards: LogoItem[] = ratings ? ratings.map((r) => ({
-        title: `${r.channelName} – ${r.youtubeHandle}`,
+        title: `${r.channelName} – ${r.subscriberCount.toLocaleString()} subscribers`,
         node: (
           <Card className="w-[240px] sm:w-[360px] rounded-2xl border shadow-md bg-card text-foreground">
             <CardHeader className="flex flex-row items-start gap-2 sm:gap-4">
               {(() => {
                 const raw = (r.avatarUrl || "").trim();
-                const src = raw
-                  ? raw.startsWith("http")
-                    ? raw
-                    : raw.startsWith("//")
-                      ? `https:${raw}`
-                      : raw
-                  : "";
-                if (src) {
-                  return (
-                    <Image
-                      src={src}
-                      alt={r.channelName}
-                      width={20}
-                      height={20}
-                      className="h-5 w-5 rounded-full object-cover"
-                      unoptimized
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                        const el = document.getElementById(`initials-${r.id}`);
-                        if (el) el.style.display = "flex";
-                      }}
-                    />
-                  );
-                }
+                const src = raw ? (raw.startsWith("//") ? `https:${raw}` : raw) : "";
                 return (
-                  <div
-                    id={`initials-${r.id}`}
-                    className="h-5 w-5 rounded-full bg-muted flex items-center justify-center font-semibold"
-                  >
-                    {(r.channelName || r.youtubeHandle || "?").replace(/^@/, "").slice(0, 2).toUpperCase()}
-                  </div>
+                  <Avatar className="h-10 w-10 overflow-hidden">
+                    {src ? <AvatarImage src={src} alt={r.channelName} /> : null}
+                  </Avatar>
                 );
               })()}
               <div className="grid gap-1">
                 <CardTitle className="text-sm sm:text-lg">{r.channelName}</CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">{r.youtubeHandle}</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">{r.subscriberCount.toLocaleString()} subscribers</CardDescription>
                 <div className="flex items-center gap-1 pt-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
