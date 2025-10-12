@@ -17,7 +17,6 @@ import ShinyText from "@/components/ShinyText";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [ratings, setRatings] = useState<ChannelRating[] | null>(null);
   const [works, setWorks] = useState<YouTubeWork[] | null>(null);
   const [totalViews, setTotalViews] = useState<number | null>(null);
@@ -114,7 +113,6 @@ export default function Home() {
       })) : [];
 
   useEffect(() => {
-    setMounted(true);
     // Fetch public reviews
     listChannelRatings()
       .then((data) => setRatings(data))
@@ -217,28 +215,19 @@ export default function Home() {
       </nav>
       {/* Hero section with video background */}
       <section id="home" className="min-h-screen text-foreground flex items-center justify-center p-6 sm:p-10 relative overflow-hidden">
-        {/* Background video: scoped to hero section only */}
-        {mounted ? (
-          <video
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            loop
-            controls={false}
-            aria-hidden="true"
-            poster="/image.png"
-            src="/mouseryvidezcoldkid.mp4"
-          />
-        ) : (
-          <div
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover bg-center bg-cover"
-            style={{ backgroundImage: 'url(/image.png)' }}
-            aria-hidden="true"
-          />
-        )}
+        {/* Background video: always render, no image fallback */}
+        <video
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          loop
+          controls={false}
+          aria-hidden="true"
+          src="/mouseryvidezcoldkid.mp4"
+        />
 
         <main className="w-full max-w-md sm:max-w-lg relative z-10">
           <Card className="rounded-2xl border shadow-sm text-center gap-4 bg-background/70 backdrop-blur-sm">
