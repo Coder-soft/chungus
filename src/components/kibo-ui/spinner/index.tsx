@@ -1,8 +1,8 @@
-import { Spinner as ShadcnSpinner } from "@repo/shadcn-ui/components/ui/spinner";
 import {
   LoaderCircleIcon,
   LoaderIcon,
   LoaderPinwheelIcon,
+  Loader2Icon,
   type LucideProps,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -264,6 +264,6 @@ export const Spinner = ({ variant, ...props }: SpinnerProps) => {
     case "infinite":
       return <Infinite {...props} />;
     default:
-      return <ShadcnSpinner className={cn("size-6", props.className)} {...props} />;
+      return <Loader2Icon className={cn("size-6 animate-spin", props.className)} {...props} />;
   }
 };
