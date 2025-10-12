@@ -40,6 +40,7 @@ export default function AdminPage() {
   const [viewWorkId, setViewWorkId] = useState<number | "">("")
   const [viewUrl, setViewUrl] = useState("")
   const [logging, setLogging] = useState(false)
+  const [refreshingViews, setRefreshingViews] = useState(false)
   const [totalViews, setTotalViews] = useState<number | null>(null)
   const [totalLoading, setTotalLoading] = useState(false)
 
@@ -263,8 +264,40 @@ export default function AdminPage() {
         <TabsContent value="views" className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Log current views</CardTitle>
-              <CardDescription>Fetch current view count via YouTube API and store a snapshot</CardDescription>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <CardTitle>Log current views</CardTitle>
+                  <CardDescription>Fetch current view count via YouTube API and store a snapshot</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={refreshingViews || !works || works.length === 0}
+                  onClick={async () => {
+                    if (!works || works.length === 0) return
+                    setRefreshingViews(true)
+                    try {
+                      toast.message("Refreshing views from all saved links...")
+                      for (const w of works) {
+                        try {
+                          await logYouTubeViews({ work_id: w.id })
+                        } catch {
+                          // continue on error
+                        }
+                      }
+                      await loadTotalViews()
+                      toast.success("Views refreshed from saved links")
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to refresh views"
+                      toast.error(msg)
+                    } finally {
+                      setRefreshingViews(false)
+                    }
+                  }}
+                >
+                  {refreshingViews ? "Refreshing..." : "Refresh from Links"}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="grid gap-4">
               <div className="grid gap-2">
