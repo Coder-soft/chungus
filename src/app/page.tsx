@@ -54,8 +54,8 @@ export default function Home() {
   const clientCards: LogoItem[] = ratings ? ratings.map((r) => ({
         title: `${r.channelName} – ${r.youtubeHandle}`,
         node: (
-          <Card className="w-[320px] sm:w-[360px] rounded-2xl border shadow-md bg-card text-foreground">
-            <CardHeader className="flex flex-row items-start gap-4">
+          <Card className="w-[240px] sm:w-[360px] rounded-2xl border shadow-md bg-card text-foreground">
+            <CardHeader className="flex flex-row items-start gap-2 sm:gap-4">
               {(() => {
                 const raw = (r.avatarUrl || "").trim();
                 const src = raw
@@ -92,14 +92,14 @@ export default function Home() {
                 );
               })()}
               <div className="grid gap-1">
-                <CardTitle className="text-lg">{r.channelName}</CardTitle>
+                <CardTitle className="text-sm sm:text-lg">{r.channelName}</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">{r.youtubeHandle}</CardDescription>
                 <div className="flex items-center gap-1 pt-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       className={
-                        "h-4 w-4 " + (i < r.stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground")
+                        "h-3 w-3 sm:h-4 sm:w-4 " + (i < r.stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground")
                       }
                     />
                   ))}
@@ -107,7 +107,7 @@ export default function Home() {
               </div>
             </CardHeader>
             <CardFooter className="pt-0">
-              <p className="text-sm leading-6 text-muted-foreground line-clamp-4">{r.comment}</p>
+              <p className="text-xs sm:text-sm leading-6 text-muted-foreground line-clamp-3 sm:line-clamp-4">{r.comment}</p>
             </CardFooter>
           </Card>
         ),
@@ -176,8 +176,8 @@ export default function Home() {
 
   return (
     <>
-      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border shadow-lg rounded-full px-3 py-1.5">
-        <ul className="flex items-center gap-1.5">
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border shadow-lg rounded-full px-2 py-1 sm:px-3 sm:py-1.5 max-w-[95vw]">
+        <ul className="flex items-center gap-1 whitespace-nowrap overflow-x-auto">
           <li>
             <Avatar className="h-8 w-8 ring-2 ring-primary/20">
               <AvatarImage src="/image.png" alt="Chungus" />
@@ -185,19 +185,19 @@ export default function Home() {
             </Avatar>
           </li>
           <li>
-            <button onClick={() => scrollToId('home')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Home</button>
+            <button onClick={() => scrollToId('home')} className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-muted">Home</button>
           </li>
           <li>
-            <button onClick={() => scrollToId('client-voice')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Clients</button>
+            <button onClick={() => scrollToId('client-voice')} className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-muted">Clients</button>
           </li>
           <li>
-            <button onClick={() => scrollToId('total-views')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Views</button>
+            <button onClick={() => scrollToId('total-views')} className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-muted">Views</button>
           </li>
           <li>
-            <button onClick={() => scrollToId('works')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Works</button>
+            <button onClick={() => scrollToId('works')} className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-muted">Works</button>
           </li>
           <li>
-            <button onClick={() => scrollToId('contact')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Contact</button>
+            <button onClick={() => scrollToId('contact')} className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-muted">Contact</button>
           </li>
           <li>
             <Tooltip>
@@ -220,7 +220,7 @@ export default function Home() {
         </ul>
       </nav>
       {/* Hero section with video background */}
-      <section id="home" className="min-h-screen text-foreground flex items-center justify-center p-6 sm:p-10 relative overflow-hidden">
+      <section id="home" className="min-h-[85vh] sm:min-h-screen text-foreground flex items-center justify-center p-6 sm:p-10 relative overflow-hidden">
         {/* Background video: always render, no image fallback */}
         <video
           className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
@@ -275,16 +275,16 @@ export default function Home() {
       </section>
 
       {/* Client Voice section */}
-      <section id="client-voice" className="relative min-h-screen w-full bg-background text-foreground flex items-center justify-center">
-        <div className="mx-auto max-w-6xl px-6 sm:px-10 py-12 sm:py-16 w-full">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Client Voice</h2>
+      <section id="client-voice" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center justify-center">
+        <div className="mx-auto max-w-6xl px-6 sm:px-10 pt-12 pb-6 sm:pt-16 sm:pb-10 w-full">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Testimonials</h2>
           <LogoLoop
             logos={clientCards}
             speed={120}
             direction="left"
             width="100%"
-            logoHeight={220}
-            gap={24}
+            logoHeight={180}
+            gap={16}
             pauseOnHover
             fadeOut
             fadeOutColor="var(--background)"
@@ -295,8 +295,8 @@ export default function Home() {
       </section>
 
       {/* Total Views Racked Up section */}
-      <section id="total-views" className="relative min-h-screen w-full bg-background text-foreground flex items-center">
-        <div className="mx-auto max-w-6xl px-6 sm:px-10 py-12 sm:py-16">
+      <section id="total-views" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center">
+        <div className="mx-auto max-w-6xl px-6 sm:px-10 pt-6 pb-12 sm:pt-10 sm:pb-16">
           <h3 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Total Views Racked Up</h3>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-6">
             <div className="rounded-2xl border shadow-sm bg-card p-6 text-center">
@@ -319,7 +319,7 @@ export default function Home() {
       </section>
 
       {/* My works section */}
-      <section id="works" className="relative min-h-screen w-full bg-background text-foreground flex items-center">
+      <section id="works" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center">
         <div className="mx-auto max-w-6xl px-6 sm:px-10 py-12 sm:py-16 w-full">
           <h3 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">My works</h3>
           {!works || works.length === 0 ? (
@@ -376,7 +376,7 @@ export default function Home() {
       </section>
 
       {/* Contact section */}
-      <section id="contact" className="relative min-h-screen w-full bg-background text-foreground flex items-center">
+      <section id="contact" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center">
         <div className="mx-auto max-w-6xl px-6 sm:px-10 py-12 sm:py-16 w-full">
           <h3 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Contact</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

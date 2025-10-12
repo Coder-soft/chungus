@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ChungusFX",
-  description: "Professional video editor crafting high-impact edits and viral content.",
+  description: "Professional Video Editor",
   icons: {
     icon: "/image.png",
   },
   openGraph: {
     title: "ChungusFX",
-    description: "Professional video editor crafting high-impact edits and viral content.",
+    description: "Professional Video Editor",
     images: [
       {
         url: "/hyperlink.png",
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ChungusFX",
-    description: "Professional video editor crafting high-impact edits and viral content.",
-    images: ["/imagecopy.png"],
+    description: "Professional Video Editor",
+    images: ["/hyperlink.png"],
   },
 };
 
