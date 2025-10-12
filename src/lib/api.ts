@@ -9,6 +9,13 @@ export type ChannelRating = {
   submittedAt: string
 }
 
+export async function deleteYouTubeWork(id: number) {
+  const res = await fetch(`/api/youtube/works/${id}`, { method: 'DELETE', cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to delete work');
+  return data as { success: boolean; id: number };
+}
+
 export type SubmitPayload = {
   youtubeHandle: string
   stars: number
@@ -147,6 +154,13 @@ export async function listYouTubeViewLogs(args: { work_id?: number; video_id?: s
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to load view logs');
   return data.data as YouTubeViewLog[];
+}
+
+export async function deleteYouTubeViewLog(id: number) {
+  const res = await fetch(`/api/youtube/views/${id}`, { method: 'DELETE', cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to delete view log');
+  return data as { success: boolean; id: number };
 }
 
 export async function getTotalYouTubeViews() {

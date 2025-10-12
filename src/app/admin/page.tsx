@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import Image from "next/image"
 import CountUp from "@/components/CountUp"
-import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, getTotalYouTubeViews } from "@/lib/api"
+import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, getTotalYouTubeViews, listYouTubeViewLogs, type YouTubeViewLog, deleteYouTubeWork, deleteYouTubeViewLog } from "@/lib/api"
 
 interface YouTubePreview extends Record<string, unknown> {
   thumbnail_url?: string
@@ -41,6 +41,8 @@ export default function AdminPage() {
   const [viewUrl, setViewUrl] = useState("")
   const [logging, setLogging] = useState(false)
   const [refreshingViews, setRefreshingViews] = useState(false)
+  const [viewLogs, setViewLogs] = useState<YouTubeViewLog[] | null>(null)
+  const [viewLogsLoading, setViewLogsLoading] = useState(false)
   const [totalViews, setTotalViews] = useState<number | null>(null)
   const [totalLoading, setTotalLoading] = useState(false)
 
@@ -67,8 +69,23 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    // View logs functionality removed - keeping effect for future use
-  }, [viewWorkId, works])
+    async function loadLogs() {
+      if (!viewWorkId) {
+        setViewLogs(null)
+        return
+      }
+      setViewLogsLoading(true)
+      try {
+        const logs = await listYouTubeViewLogs({ work_id: Number(viewWorkId), limit: 50 })
+        setViewLogs(logs)
+      } catch {
+        setViewLogs([])
+      } finally {
+        setViewLogsLoading(false)
+      }
+    }
+    loadLogs()
+  }, [viewWorkId])
 
   async function loadTotalViews() {
     setTotalLoading(true)
@@ -344,6 +361,27 @@ export default function AdminPage() {
                 >
                   {logging ? "Logging..." : "Log Now"}
                 </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={!viewWorkId}
+                  onClick={async () => {
+                    if (!viewWorkId) return
+                    try {
+                      await deleteYouTubeWork(Number(viewWorkId))
+                      toast.success("Deleted work")
+                      const list = await listYouTubeWorks()
+                      setWorks(list)
+                      setViewWorkId("")
+                      setViewLogs(null)
+                    } catch (e: unknown) {
+                      const msg = e instanceof Error ? e.message : "Failed to delete work"
+                      toast.error(msg)
+                    }
+                  }}
+                >
+                  Delete Selected Work
+                </Button>
               </div>
 
               <Separator />
@@ -365,6 +403,58 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
+
+              {viewWorkId ? (
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">Recent logs for the selected work</div>
+                  {viewLogsLoading ? (
+                    <div className="flex items-center gap-2 text-muted-foreground"><Spinner /> Loading logs...</div>
+                  ) : !viewLogs || viewLogs.length === 0 ? (
+                    <div className="text-muted-foreground">No logs</div>
+                  ) : (
+                    <div className="rounded-md border overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="min-w-[80px]">ID</TableHead>
+                            <TableHead>Views</TableHead>
+                            <TableHead>Fetched At</TableHead>
+                            <TableHead className="w-[120px] text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {viewLogs.map((log) => (
+                            <TableRow key={log.id}>
+                              <TableCell>{log.id}</TableCell>
+                              <TableCell>{log.view_count.toLocaleString()}</TableCell>
+                              <TableCell>{new Date(log.fetched_at).toLocaleString()}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={async () => {
+                                    try {
+                                      await deleteYouTubeViewLog(log.id)
+                                      setViewLogs((prev) => (prev ?? []).filter((l) => l.id !== log.id))
+                                      toast.success("Log deleted")
+                                      await loadTotalViews()
+                                    } catch (e: unknown) {
+                                      const msg = e instanceof Error ? e.message : "Failed to delete log"
+                                      toast.error(msg)
+                                    }
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         </TabsContent>
@@ -486,7 +576,7 @@ export default function AdminPage() {
               {!works || works.length === 0 ? (
                 <div className="text-muted-foreground">No works</div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                   {works.map((w) => (
                     <Card key={w.id} className="overflow-hidden">
                       {w.thumbnail_url ? (
@@ -500,27 +590,52 @@ export default function AdminPage() {
                             <CardTitle className="truncate text-base">{w.video_title || "Untitled video"}</CardTitle>
                             <CardDescription className="truncate">{w.channel_title || "Unknown channel"}</CardDescription>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            disabled={refreshingId === w.id}
-                            onClick={async () => {
-                              try {
-                                setRefreshingId(w.id)
-                                await refreshYouTubeWork(w.id)
-                                const list = await listYouTubeWorks()
-                                setWorks(list)
-                                toast.success("Updated")
-                              } catch (e: unknown) {
-                                const msg = e instanceof Error ? e.message : "Failed to update"
-                                toast.error(msg)
-                              } finally {
-                                setRefreshingId(null)
-                              }
-                            }}
-                          >
-                            {refreshingId === w.id ? "Updating..." : "Update Info"}
-                          </Button>
+                          <div className="flex flex-wrap gap-2 justify-end shrink-0 flex-col sm:flex-row items-stretch sm:items-center">
+                            <Button
+                              className="shrink-0"
+                              size="sm"
+                              variant="secondary"
+                              disabled={refreshingId === w.id}
+                              onClick={async () => {
+                                try {
+                                  setRefreshingId(w.id)
+                                  await refreshYouTubeWork(w.id)
+                                  const list = await listYouTubeWorks()
+                                  setWorks(list)
+                                  toast.success("Updated")
+                                } catch (e: unknown) {
+                                  const msg = e instanceof Error ? e.message : "Failed to update"
+                                  toast.error(msg)
+                                } finally {
+                                  setRefreshingId(null)
+                                }
+                              }}
+                            >
+                              {refreshingId === w.id ? "Updating..." : "Update Info"}
+                            </Button>
+                            <Button
+                              className="shrink-0"
+                              size="sm"
+                              variant="destructive"
+                              onClick={async () => {
+                                try {
+                                  await deleteYouTubeWork(w.id)
+                                  const list = await listYouTubeWorks()
+                                  setWorks(list)
+                                  if (viewWorkId === w.id) {
+                                    setViewWorkId("")
+                                    setViewLogs(null)
+                                  }
+                                  toast.success("Deleted")
+                                } catch (e: unknown) {
+                                  const msg = e instanceof Error ? e.message : "Failed to delete"
+                                  toast.error(msg)
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                     </Card>
