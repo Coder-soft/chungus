@@ -19,6 +19,13 @@ import Image from "next/image"
 import CountUp from "@/components/CountUp"
 import { previewYouTube, upsertYouTubeWork, listYouTubeWorks, refreshYouTubeWork, type YouTubeWork, logYouTubeViews, getTotalYouTubeViews } from "@/lib/api"
 
+interface YouTubePreview extends Record<string, unknown> {
+  thumbnail_url?: string
+  video_title?: string
+  channel_title?: string
+  view_count?: number
+}
+
 export default function AdminPage() {
   const [form, setForm] = useState<SubmitPayload>({ youtubeHandle: "", stars: 5, comment: "" })
   const [submitting, setSubmitting] = useState(false)
@@ -26,7 +33,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [workUrl, setWorkUrl] = useState("")
   const [workNote, setWorkNote] = useState("")
-  const [workPreview, setWorkPreview] = useState<Record<string, unknown> | undefined>(undefined)
+  const [workPreview, setWorkPreview] = useState<YouTubePreview | undefined>(undefined)
   const [workSaving, setWorkSaving] = useState(false)
   const [works, setWorks] = useState<YouTubeWork[] | null>(null)
   const [refreshingId, setRefreshingId] = useState<number | null>(null)
@@ -390,7 +397,7 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-[320px_1fr] gap-4 rounded-lg border p-4">
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                     {workPreview.thumbnail_url ? (
-                      <Image src={workPreview.thumbnail_url} alt={workPreview.video_title} fill className="object-cover" />
+                      <Image src={workPreview.thumbnail_url} alt={workPreview.video_title || "Video thumbnail"} fill className="object-cover" />
                     ) : null}
                   </div>
                   <div className="space-y-1">

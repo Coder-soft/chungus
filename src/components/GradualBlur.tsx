@@ -123,18 +123,18 @@ const useResponsiveDimension = (
   responsive: boolean | undefined,
   config: Partial<GradualBlurProps>,
   key: keyof GradualBlurProps
-) => {
-  const [val, setVal] = useState<unknown>(config[key]);
+): string | number | undefined => {
+  const [val, setVal] = useState<string | number | undefined>(config[key] as string | number | undefined);
   useEffect(() => {
     if (!responsive) return;
     const calc = () => {
       const w = window.innerWidth;
-      let v: unknown = config[key];
+      let v: string | number | undefined = config[key] as string | number | undefined;
       const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       const k = cap(key as string);
-      if (w <= 480 && (config as Record<string, unknown>)['mobile' + k]) v = (config as Record<string, unknown>)['mobile' + k];
-      else if (w <= 768 && (config as Record<string, unknown>)['tablet' + k]) v = (config as Record<string, unknown>)['tablet' + k];
-      else if (w <= 1024 && (config as Record<string, unknown>)['desktop' + k]) v = (config as Record<string, unknown>)['desktop' + k];
+      if (w <= 480 && (config as Record<string, unknown>)['mobile' + k]) v = (config as Record<string, unknown>)['mobile' + k] as string | number | undefined;
+      else if (w <= 768 && (config as Record<string, unknown>)['tablet' + k]) v = (config as Record<string, unknown>)['tablet' + k] as string | number | undefined;
+      else if (w <= 1024 && (config as Record<string, unknown>)['desktop' + k]) v = (config as Record<string, unknown>)['desktop' + k] as string | number | undefined;
       setVal(v);
     };
     const deb = debounce(calc, 100);
@@ -142,7 +142,7 @@ const useResponsiveDimension = (
     window.addEventListener('resize', deb);
     return () => window.removeEventListener('resize', deb);
   }, [responsive, config, key]);
-  return responsive ? val : (config as Record<string, unknown>)[key];
+  return responsive ? val : (config as Record<string, string | number | undefined>)[key];
 };
 
 const useIntersectionObserver = (ref: React.RefObject<HTMLDivElement | null>, shouldObserve: boolean = false) => {

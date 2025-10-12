@@ -405,7 +405,7 @@ export default function Home() {
                 </div>
                 <div className="pt-1">
                   <Button asChild size="sm" className="bg-black text-white hover:bg-black/90">
-                    <a href="https://x.com/your_handle" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <a href="https://x.com/chungusfx" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                       <Image src="/X.svg" alt="X" width={18} height={18} />
                       <span>Message on X</span>
                     </a>
