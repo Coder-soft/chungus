@@ -14,6 +14,7 @@ import LogoLoop, { type LogoItem } from "@/components/LogoLoop";
 import CountUp from "@/components/CountUp";
 import { listChannelRatings, type ChannelRating, listYouTubeWorks, type YouTubeWork, getTotalYouTubeViews } from "@/lib/api";
 import ShinyText from "@/components/ShinyText";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -199,17 +200,22 @@ export default function Home() {
             <button onClick={() => scrollToId('contact')} className="px-3 py-1 rounded-full text-sm hover:bg-muted">Contact</button>
           </li>
           <li>
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={toggleTheme}
+                  aria-label="Toggle theme"
+                  className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Toggle theme</TooltipContent>
+            </Tooltip>
           </li>
         </ul>
       </nav>
