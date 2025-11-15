@@ -11,9 +11,13 @@ function getClient() {
   );
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const idNum = Number(params.id);
+    const { id } = await params;
+    const idNum = Number(id);
     if (!idNum || Number.isNaN(idNum)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     }
