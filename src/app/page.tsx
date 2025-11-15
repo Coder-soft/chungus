@@ -225,7 +225,7 @@ export default function Home() {
             </CardHeader>
             <CardFooter className="justify-center pt-2 pb-8 px-6">
               <Button 
-                className="rounded-full px-6 py-2" 
+                className="rounded-full px-6 py-2 dark:text-white" 
                 size="lg" 
                 onClick={scrollToClientVoice}
               >
@@ -250,7 +250,7 @@ export default function Home() {
 
       {/* Client Voice section */}
       <section id="client-voice" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center justify-center">
-        <div className="mx-auto max-w-6xl px-6 sm:px-10 pt-12 pb-6 sm:pt-16 sm:pb-10 w-full">
+        <div className="mx-auto max-w-none px-0 sm:px-0 pt-12 pb-6 sm:pt-16 sm:pb-10 w-full">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Testimonials</h2>
           <LogoLoop
             logos={clientCards}
