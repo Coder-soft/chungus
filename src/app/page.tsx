@@ -249,8 +249,8 @@ export default function Home() {
       </section>
 
       {/* Client Voice section */}
-      <section id="client-voice" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center justify-center">
-        <div className="mx-auto max-w-none px-0 sm:px-0 pt-12 pb-6 sm:pt-16 sm:pb-10 w-full">
+      <section id="client-voice" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-start justify-center">
+        <div className="mx-auto max-w-6xl px-0 sm:px-0 pt-10 pb-4 sm:pt-14 sm:pb-6 w-full">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Testimonials</h2>
           <LogoLoop
             logos={clientCards}
@@ -269,24 +269,35 @@ export default function Home() {
       </section>
 
       {/* Total Views Racked Up section */}
-      <section id="total-views" className="relative min-h-[85vh] sm:min-h-screen w-full bg-background text-foreground flex items-center">
-        <div className="mx-auto max-w-6xl px-6 sm:px-10 pt-6 pb-12 sm:pt-10 sm:pb-16">
+      <section id="total-views" className="relative w-full bg-background text-foreground">
+        <div className="mx-auto max-w-6xl px-6 sm:px-10 pt-4 pb-12 sm:pt-6 sm:pb-14">
           <h3 className="text-2xl sm:text-3xl font-semibold mb-8 text-center">Total Views Racked Up</h3>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-6">
-            <div className="rounded-2xl border shadow-sm bg-card p-6 text-center">
-              <div className="text-xs sm:text-sm text-muted-foreground mb-2">Total Views</div>
-              {totalLoading ? (
-                <div className="text-muted-foreground">Loading...</div>
-              ) : (
-                <div className="group inline-block">
-                  <CountUp
-                    to={totalViews ?? 0}
-                    duration={2}
-                    separator="," 
-                    className="text-3xl sm:text-4xl font-bold transition-all duration-300 will-change-transform will-change-auto group-hover:tracking-wide group-hover:scale-105 group-hover:text-primary"
-                  />
-                </div>
-              )}
+            <div className="w-full max-w-lg sm:max-w-xl mx-auto">
+              <Card className="rounded-2xl border shadow-sm bg-card p-6 text-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="text-xs sm:text-sm text-muted-foreground mb-2 cursor-help inline-block">
+                      Total Views
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>
+                    This is the total amount of views my clients got on videos I edited.
+                  </TooltipContent>
+                </Tooltip>
+                {totalLoading ? (
+                  <div className="text-muted-foreground">Loading...</div>
+                ) : (
+                  <div className="group inline-block">
+                    <CountUp
+                      to={totalViews ?? 0}
+                      duration={2}
+                      separator="," 
+                      className="text-3xl sm:text-4xl font-bold transition-all duration-300 will-change-transform will-change-auto group-hover:tracking-wide group-hover:scale-105 group-hover:text-primary"
+                    />
+                  </div>
+                )}
+              </Card>
             </div>
           </div>
         </div>
@@ -374,7 +385,7 @@ export default function Home() {
                 </div>
                 <div className="pt-1">
                   <Button asChild size="sm" className="bg-black text-white hover:bg-black/90">
-                    <a href="https://x.com/chungusfx" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <a href="https://x.com/chunguscreates" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                       <Image src="/X.svg" alt="X" width={18} height={18} />
                       <span>Message on X</span>
                     </a>
